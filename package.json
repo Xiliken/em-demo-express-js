@@ -3,10 +3,21 @@
   "version": "1.0.0",
   "description": "Версия на нативном JS с использованием Express ",
   "main": "index.js",
+  "type": "module",
   "author": "Xiliken",
   "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js",
+    "migrate": "yarn sequelize-cli db:migrate",
+    "migrate:undo": "yarn sequelize-cli db:migrate:undo"
+  },
   "dependencies": {
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "express-validator": "^7.2.1"
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "pg": "^8.14.1",
+    "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.2"
   }
 }
