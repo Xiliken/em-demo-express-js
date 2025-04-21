@@ -1,5 +1,8 @@
 import { validateCreateAppeal, validateCancelAll, validateCompleteAppeal, validateCancelAppeal, displayErrors } from './validate.js';
 
+const ITEMS_PER_PAGE = 9;
+let currentPage = 1;
+
 const createAppeal = async () => {
   const topic = document.getElementById('topic').value;
   const text = document.getElementById('text').value;
@@ -18,53 +21,61 @@ const createAppeal = async () => {
     });
     const result = await response.json();
     if (response.ok) {
-      alert('Обращение создано');
-      await fetchAppeals();
+      showNotification('Обращение создано', 'success');
+      document.getElementById('topic').value = '';
+      document.getElementById('text').value = '';
     } else {
-      alert(result.errors ? result.errors.join(', ') : result.error);
+      showNotification(result.errors ? result.errors.join(', ') : result.error, 'error');
     }
   } catch (error) {
-    alert('Ошибка: ' + error.message);
+    showNotification('Ошибка: ' + error.message, 'error');
   }
 };
 
-const fetchAppeals = async () => {
-  const date = document.getElementById('date').value;
-  const startDate = document.getElementById('startDate').value;
-  const endDate = document.getElementById('endDate').value;
-  let url = '/api/appeals';
-  if (date) url += `?date=${date}`;
-  else if (startDate && endDate) url += `?startDate=${startDate}&endDate=${endDate}`;
+const fetchAppeals = async (page = 1) => {
+  const date = document.getElementById('date')?.value;
+  const startDate = document.getElementById('startDate')?.value;
+  const endDate = document.getElementById('endDate')?.value;
+  let url = `/api/appeals?page=${page}&limit=${ITEMS_PER_PAGE}`;
+  if (date) url += `&date=${date}`;
+  else if (startDate && endDate) url += `&startDate=${startDate}&endDate=${endDate}`;
 
   try {
     const response = await fetch(url);
     const appeals = await response.json();
     const appealsDiv = document.getElementById('appeals');
-    appealsDiv.innerHTML = '';
+    if (page === 1) appealsDiv.innerHTML = '';
 
     appeals.forEach(appeal => {
       const div = document.createElement('div');
-      div.className = 'bg-white p-4 rounded shadow';
+      div.className = 'bg-white p-6 rounded-lg shadow card';
       div.innerHTML = `
-        <h3 class="font-bold">${appeal.topic}</h3>
-        <p>${appeal.text}</p>
-        <p><strong>Статус:</strong> ${appeal.status}</p>
-        ${appeal.resolution ? `<p><strong>Решение:</strong> ${appeal.resolution}</p>` : ''}
-        ${appeal.cancelReason ? `<p><strong>Причина отмены:</strong> ${appeal.cancelReason}</p>` : ''}
-        ${appeal.status === 'Новое' ? `<button onclick="window.app.startWork(${appeal.id})" class="bg-yellow-500 text-white p-2 rounded mt-2">Взять в работу</button>` : ''}
+        <h3 class="font-bold text-lg text-gray-800 mb-2">${appeal.topic}</h3>
+        <p class="text-gray-600 mb-2">${appeal.text}</p>
+        <p class="text-sm"><strong class="text-gray-700">Статус:</strong> ${appeal.status}</p>
+        ${appeal.resolution ? `<p class="text-sm"><strong class="text-gray-700">Решение:</strong> ${appeal.resolution}</p>` : ''}
+        ${appeal.cancelReason ? `<p class="text-sm"><strong class="text-gray-700">Причина отмены:</strong> ${appeal.cancelReason}</p>` : ''}
+        ${appeal.status === 'Новое' ? `<button data-action="start-work" data-id="${appeal.id}" class="bg-yellow-500 text-white p-2 rounded mt-4 w-full hover:bg-yellow-600 transition">Взять в работу</button>` : ''}
         ${appeal.status === 'В работе' ? `
-          <div id="complete-errors-${appeal.id}"></div>
-          <textarea id="resolution-${appeal.id}" placeholder="Текст решения" class="border p-2 mt-2 w-full"></textarea>
-          <button onclick="window.app.completeAppeal(${appeal.id})" class="bg-green-500 text-white p-2 rounded mt-2">Завершить</button>
-          <div id="cancel-errors-${appeal.id}"></div>
-          <textarea id="cancelReason-${appeal.id}" placeholder="Причина отмены" class="border p-2 mt-2 w-full"></textarea>
-          <button onclick="window.app.cancelAppeal(${appeal.id})" class="bg-red-500 text-white p-2 rounded mt-2">Отменить</button>
+          <div id="complete-errors-${appeal.id}" class="text-red-600 mb-2"></div>
+          <textarea id="resolution-${appeal.id}" placeholder="Текст решения" class="border rounded-lg p-3 mb-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          <button data-action="complete" data-id="${appeal.id}" class="bg-green-500 text-white p-2 rounded mt-2 w-full hover:bg-green-600 transition">Завершить</button>
+          <div id="cancel-errors-${appeal.id}" class="text-red-600 mb-2"></div>
+          <textarea id="cancelReason-${appeal.id}" placeholder="Причина отмены" class="border rounded-lg p-3 mb-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          <button data-action="cancel" data-id="${appeal.id}" class="bg-red-500 text-white p-2 rounded mt-2 w-full hover:bg-red-600 transition">Отменить</button>
         ` : ''}
       `;
       appealsDiv.appendChild(div);
     });
+
+    const loadMoreButton = document.getElementById('load-more');
+    if (appeals.length === ITEMS_PER_PAGE) {
+      loadMoreButton.classList.remove('hidden');
+    } else {
+      loadMoreButton.classList.add('hidden');
+    }
   } catch (error) {
-    alert('Ошибка: ' + error.message);
+    showNotification('Ошибка: ' + error.message, 'error');
   }
 };
 
@@ -73,13 +84,13 @@ const startWork = async (id) => {
     const response = await fetch(`/api/appeals/${id}/work`, { method: 'PATCH' });
     const result = await response.json();
     if (response.ok) {
-      alert('Обращение взято в работу');
-      await fetchAppeals();
+      showNotification('Обращение взято в работу', 'success');
+      await fetchAppeals(currentPage);
     } else {
-      alert(result.errors ? result.errors.join(', ') : result.error);
+      showNotification(result.errors ? result.errors.join(', ') : result.error, 'error');
     }
   } catch (error) {
-    alert('Ошибка: ' + error.message);
+    showNotification('Ошибка: ' + error.message, 'error');
   }
 };
 
@@ -100,13 +111,13 @@ const completeAppeal = async (id) => {
     });
     const result = await response.json();
     if (response.ok) {
-      alert('Обращение завершено');
-      await fetchAppeals();
+      showNotification('Обращение завершено', 'success');
+      await fetchAppeals(currentPage);
     } else {
-      alert(result.errors ? result.errors.join(', ') : result.error);
+      showNotification(result.errors ? result.errors.join(', ') : result.error, 'error');
     }
   } catch (error) {
-    alert('Ошибка: ' + error.message);
+    showNotification('Ошибка: ' + error.message, 'error');
   }
 };
 
@@ -127,13 +138,13 @@ const cancelAppeal = async (id) => {
     });
     const result = await response.json();
     if (response.ok) {
-      alert('Обращение отменено');
-      await fetchAppeals();
+      showNotification('Обращение отменено', 'success');
+      await fetchAppeals(currentPage);
     } else {
-      alert(result.errors ? result.errors.join(', ') : result.error);
+      showNotification(result.errors ? result.errors.join(', ') : result.error, 'error');
     }
   } catch (error) {
-    alert('Ошибка: ' + error.message);
+    showNotification('Ошибка: ' + error.message, 'error');
   }
 };
 
@@ -154,23 +165,53 @@ const cancelAllWorking = async () => {
     });
     const result = await response.json();
     if (response.ok) {
-      alert(result.message);
-      await fetchAppeals();
+      showNotification(result.message, 'success');
+      document.getElementById('cancelReasonAll').value = '';
     } else {
-      alert(result.errors ? result.errors.join(', ') : result.error);
+      showNotification(result.errors ? result.errors.join(', ') : result.error, 'error');
     }
   } catch (error) {
-    alert('Ошибка: ' + error.message);
+    showNotification('Ошибка: ' + error.message, 'error');
   }
 };
 
-window.app = {
-  createAppeal,
-  fetchAppeals,
-  startWork,
-  completeAppeal,
-  cancelAppeal,
-  cancelAllWorking,
+const showNotification = (message, type) => {
+  const notification = document.createElement('div');
+  notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white ${
+    type === 'success' ? 'bg-green-500' : 'bg-red-500'
+  }`;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  setTimeout(() => notification.remove(), 3000);
 };
 
-fetchAppeals();
+// Настройка делегирования событий
+document.addEventListener('click', async (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+
+  const action = button.dataset.action;
+  const id = button.dataset.id ? parseInt(button.dataset.id, 10) : null;
+
+  if (action === 'start-work' && id) {
+    await startWork(id);
+  } else if (action === 'complete' && id) {
+    await completeAppeal(id);
+  } else if (action === 'cancel' && id) {
+    await cancelAppeal(id);
+  } else if (action === 'create-appeal') {
+    await createAppeal();
+  } else if (action === 'cancel-all') {
+    await cancelAllWorking();
+  } else if (action === 'apply-filter') {
+    currentPage = 1;
+    await fetchAppeals(currentPage);
+  } else if (action === 'load-more') {
+    currentPage++;
+    await fetchAppeals(currentPage);
+  }
+});
+
+if (window.location.pathname === '/appeals') {
+  fetchAppeals();
+}

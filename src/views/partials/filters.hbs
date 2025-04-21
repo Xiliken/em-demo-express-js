@@ -1,9 +1,9 @@
-<div class="mb-6">
-  <h2 class="text-xl font-semibold mb-2">Список обращений</h2>
-  <div class="mb-4">
-    <input id="date" type="date" class="border p-2 mr-2">
-    <input id="startDate" type="date" class="border p-2 mr-2" placeholder="Начальная дата">
-    <input id="endDate" type="date" class="border p-2 mr-2" placeholder="Конечная дата">
-    <button onclick="fetchAppeals()" class="bg-green-500 text-white p-2 rounded">Фильтровать</button>
+<div class="bg-white p-6 rounded-lg shadow card mb-6">
+  <h2 class="text-xl font-semibold mb-4 text-gray-700">Фильтры</h2>
+  <div class="flex flex-col md:flex-row gap-4">
+    <input id="date" type="date" class="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    <input id="startDate" type="date" class="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    <input id="endDate" type="date" class="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    <button data-action="apply-filter" class="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition">Применить</button>
   </div>
 </div>

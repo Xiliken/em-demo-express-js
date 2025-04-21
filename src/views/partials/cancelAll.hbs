@@ -1,5 +1,6 @@
-<div>
-  <h2 class="text-xl font-semibold mb-2">Отменить все обращения в работе</h2>
-  <textarea id="cancelReasonAll" placeholder="Причина отмены" class="border p-2 mb-2 w-full"></textarea>
-  <button onclick="cancelAllWorking()" class="bg-red-500 text-white p-2 rounded">Отменить все</button>
+<div class="bg-white p-6 rounded-lg shadow card">
+  <h2 class="text-xl font-semibold mb-4 text-gray-700">Отменить все обращения в работе</h2>
+  <div id="cancel-all-errors" class="mb-4 text-red-600"></div>
+  <textarea id="cancelReasonAll" placeholder="Причина отмены" class="border rounded-lg p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+  <button data-action="cancel-all" class="bg-red-600 text-white p-3 rounded-lg w-full hover:bg-red-700 transition">Отменить все</button>
 </div>

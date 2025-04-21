@@ -8,16 +8,26 @@
   "license": "MIT",
   "scripts": {
     "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest",
     "migrate": "yarn sequelize-cli db:migrate",
     "migrate:undo": "yarn sequelize-cli db:migrate:undo"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-handlebars": "^8.0.2",
     "express-validator": "^7.2.1",
+    "hbs": "^4.2.0",
     "helmet": "^8.1.0",
     "pg": "^8.14.1",
     "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.1.0"
   }
 }
