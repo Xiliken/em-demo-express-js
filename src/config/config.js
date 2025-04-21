@@ -9,13 +9,12 @@ export const appConfig = {
   port: process.env.PORT || 3000,
 };
 
-// Конфигурация для Sequelize (для моделей и миграций)
 export default {
   development: {
     dialect: 'postgres',
-    host: process.env.DB_HOST || 'localhost',
+    host: process.env.DB_HOST || 'postgres',
     port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'appeals_db',
+    database: process.env.DB_NAME || 'em_demo',
     username: process.env.DB_USER || 'user',
     password: process.env.DB_PASSWORD || 'password',
   },

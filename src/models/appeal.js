@@ -2,6 +2,11 @@ import { DataTypes } from 'sequelize';
 
 export const defineAppeal = (sequelize) => {
   return sequelize.define('Appeal', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     topic: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -13,7 +18,7 @@ export const defineAppeal = (sequelize) => {
     status: {
       type: DataTypes.ENUM('Новое', 'В работе', 'Завершено', 'Отменено'),
       defaultValue: 'Новое',
-    }, // Не стал использовать, так как вряд ли эти данные будут часто меняться, нет смысла делать доп таблицу
+    }, // Не стал использовать дополнительную таблицу, так как вряд ли эти данные будут часто меняться, нет смысла делать доп таблицу
     resolution: {
       type: DataTypes.TEXT,
     },

@@ -6,14 +6,17 @@ export class AppealsRepository {
   }
 
   async create({ topic, text }) {
+    console.log('Repository: Creating appeal:', { topic, text });
     return await this.Appeal.create({ topic, text });
   }
 
   async findById(id) {
+    console.log('Repository: Finding appeal by ID:', id);
     return await this.Appeal.findByPk(id);
   }
 
   async update(id, updates) {
+    console.log('Repository: Updating appeal:', id, updates);
     const appeal = await this.findById(id);
     if (!appeal) {
       throw new Error('Обращение не найдено');
@@ -22,6 +25,7 @@ export class AppealsRepository {
   }
 
   async findAll({ date, startDate, endDate, page = 1, limit = 10 }) {
+    console.log('Repository: Fetching appeals:', { date, startDate, endDate, page, limit });
     let where = {};
     if (date) {
       const specificDate = new Date(date);
@@ -43,10 +47,12 @@ export class AppealsRepository {
   }
 
   async updateAllWorking(cancelReason) {
+    console.log('Repository: Canceling all working appeals:', cancelReason);
     const [affectedRows] = await this.Appeal.update(
       { status: 'Отменено', cancelReason },
       { where: { status: 'В работе' } }
     );
+    console.log(`Repository: Canceled ${affectedRows} appeals`);
     return affectedRows;
   }
 }

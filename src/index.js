@@ -5,9 +5,9 @@ import { engine } from 'express-handlebars';
 import path from 'path';
 import helmet from 'helmet';
 import { fileURLToPath } from 'url';
-import config from '../config/config.js';
-import { appConfig } from '../config/config.js';
-import { defineAppeal } from '../models/appeals.js';
+import config from './config/config.js';
+import { appConfig } from './config/config.js';
+import { defineAppeal } from './models/appeal.js';
 import { AppealsService } from './services/appealsService.js';
 import { AppealsRepository } from './repositories/appealsRepository.js';
 import { createAppealsRoutes } from './routes/appealsRoutes.js';
@@ -83,6 +83,9 @@ app.use((req, res) => {
   try {
     await sequelize.authenticate();
     console.log('Database connected');
+
+    //wait sequelize.sync({ alter: true });
+
     app.listen(appConfig.port, () => {
       console.log(`Сервер запущен на http://localhost:${appConfig.port}`);
     });

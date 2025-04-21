@@ -45,28 +45,33 @@ export class AppealsController {
   };
 
   async createAppeal(req, res) {
+    console.log('POST /api/appeals', req.body);
     try {
       await this.validate(req, res, async () => {
         const appeal = await this.appealsService.createAppeal(req.body);
         res.status(201).json(appeal);
       });
     } catch (error) {
+      console.error('Create appeal error:', error);
       res.status(500).json({ error: error.message });
     }
   }
 
   async startWork(req, res) {
+    console.log(`PATCH /api/appeals/${req.params.id}/work`);
     try {
       await this.validate(req, res, async () => {
         const appeal = await this.appealsService.startWork(req.params.id);
         res.json(appeal);
       });
     } catch (error) {
+      console.error('Start work error:', error);
       res.status(error.message.includes('не найдено') ? 404 : 400).json({ error: error.message });
     }
   }
 
   async completeAppeal(req, res) {
+    console.log(`PATCH /api/appeals/${req.params.id}/complete`, req.body);
     try {
       await this.validate(req, res, async () => {
         const { resolution } = req.body;
@@ -74,11 +79,13 @@ export class AppealsController {
         res.json(appeal);
       });
     } catch (error) {
+      console.error('Complete appeal error:', error);
       res.status(error.message.includes('не найдено') ? 404 : 400).json({ error: error.message });
     }
   }
 
   async cancelAppeal(req, res) {
+    console.log(`PATCH /api/appeals/${req.params.id}/cancel`, req.body);
     try {
       await this.validate(req, res, async () => {
         const { cancelReason } = req.body;
@@ -86,11 +93,13 @@ export class AppealsController {
         res.json(appeal);
       });
     } catch (error) {
+      console.error('Cancel appeal error:', error);
       res.status(error.message.includes('не найдено') ? 404 : 400).json({ error: error.message });
     }
   }
 
   async getAppeals(req, res) {
+    console.log('GET /api/appeals', req.query);
     try {
       await this.validate(req, res, async () => {
         const { date, startDate, endDate, page, limit } = req.query;
@@ -98,18 +107,24 @@ export class AppealsController {
         res.json(appeals);
       });
     } catch (error) {
+      console.error('Get appeals error:', error);
       res.status(400).json({ error: error.message });
     }
   }
 
   async cancelAllWorking(req, res) {
+    console.log('PATCH /api/appeals/cancel-working', req.body);
     try {
       await this.validate(req, res, async () => {
         const { cancelReason } = req.body;
+        if (typeof cancelReason !== 'string') {
+          throw new Error('Причина отмены должна быть строкой');
+        }
         const affectedRows = await this.appealsService.cancelAllWorking(cancelReason);
         res.json({ message: `Отменено ${affectedRows} обращений` });
       });
     } catch (error) {
+      console.error('Cancel all working error:', error);
       res.status(400).json({ error: error.message });
     }
   }
