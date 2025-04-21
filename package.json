@@ -1,0 +1,12 @@
+{
+  "name": "em-demo-express-js",
+  "version": "1.0.0",
+  "description": "Версия на нативном JS с использованием Express ",
+  "main": "index.js",
+  "author": "Xiliken",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1"
+  }
+}
